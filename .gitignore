@@ -1,0 +1,9 @@
+*.hex
+*.plg
+*.lnp
+*.LST
+*.M51
+*.OBJ
+*.uvopt
+*.uvproj
+*.bak

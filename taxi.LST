@@ -1,0 +1,215 @@
+A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 09:25:22 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.02
+OBJECT MODULE PLACED IN taxi.OBJ
+ASSEMBLER INVOKED BY: D:\programe files\C51\BIN\A51.EXE taxi.asm SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;Ë«×Ö½ÚÖÐ¶Ï¼ÆÊ
+  0030                 2     cDisplayBuffer  EQU             30H             ;ÔÚÏÔÊ¾µÄÄÚÈÝÔÚ30H-37H
+  0038                 3     cDisplayBit             EQU             38H             ;µ±Ç°ÏÔÊ¾µÄÎ»
+  0040                 4     cCount                  EQU             40H
+0000                   5             ORG     0000H
+0000 020006            6                     LJMP    Main
+0003                   7                     ORG             0003H
+0003 020034            8                     LJMP    INT0PROC
+0006                   9     Main:
+0006 7A01             10                     MOV             R2,#1
+                      11     
+0008 753000           12                     MOV             cDisplayBuffer,#0
+000B 753100           13                     MOV             cDisplayBuffer+1,#0
+000E 753200           14                     MOV             cDisplayBuffer+2,#0
+0011 753300           15                     MOV             cDisplayBuffer+3,#0
+                      16     
+0014 753400           17                     MOV             cDisplayBuffer+4,#0
+0017 753500           18                     MOV             cDisplayBuffer+5,#0
+001A 753600           19                     MOV             cDisplayBuffer+6,#0
+001D 753700           20                     MOV             cDisplayBuffer+7,#0
+                      21     
+0020 754000           22                     MOV             40H,#0
+0023 7C00             23                     MOV             R4,#0
+0025 D2A8             24                     SETB    EX0
+0027 D2AF             25                     SETB    EA
+0029 D288             26                     SETB    IT0
+002B                  27     M1:
+002B 1200B9           28                     LCALL   Display
+002E 7800             29                     MOV             R0,#0
+0030 D8FE             30                     DJNZ    R0,$
+                      31                     
+                      32     
+                      33     
+0032 80F7             34                     SJMP    M1
+                      35     
+0034                  36     INT0PROC:
+0034 20B705           37                     JB              P3.7,M2
+0037 120040           38                     LCALL   Count
+003A 8003             39                     SJMP    M3
+003C                  40     M2:
+003C 12004C           41                     LCALL   DecCount
+003F                  42     M3:
+                      43     
+003F 32               44                     RETI
+                      45     
+                      46     
+0040                  47     Count:
+0040 0541             48                     INC             41H
+0042 E541             49                     MOV             A,41H
+0044 7002             50                     JNZ             CC1
+0046 0540             51                     INC             40H
+0048                  52     CC1:            
+0048 120059           53                     LCALL   ToDisplay
+004B 22               54                     RET
+                      55     
+                      56     
+004C                  57     DecCount:
+004C 1541             58                     DEC             41H
+A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 09:25:22 PAGE     2
+
+004E E541             59                     MOV             A,41H
+0050 B4FF02           60                     CJNE    A,#255,DC1
+0053 1540             61                     DEC             40H
+0055                  62     DC1:            
+0055 120059           63                     LCALL   ToDisplay
+0058 22               64                     RET
+                      65     
+0059                  66     ToDisplay:
+                      67     
+0059 854042           68                     MOV             42H,40H
+005C 854143           69                     MOV             43H,41H
+005F 7842             70                     MOV             R0,#42H         ;42HÎª¸ßÎ»×Ö½Ú£¬43HÎªµÍÎ»×Ö½Ú
+0061 7950             71                     MOV             R1,#50H         ;½á¹ûÎª6Î»BCDÂë
+0063 120085           72                     LCALL   BinDec
+                      73                     
+0066 E550             74                     MOV             A,50H
+0068 F533             75                     MOV             cDisplayBuffer+3,A
+006A E551             76                     MOV             A,51H
+006C 540F             77                     ANL             A,#0FH
+006E F535             78                     MOV             cDisplayBuffer+5,A
+0070 E551             79                     MOV             A,51H
+0072 C4               80                     SWAP    A
+0073 540F             81                     ANL             A,#0FH
+0075 F534             82                     MOV             cDisplayBuffer+4,A
+                      83                     
+0077 E552             84                     MOV             A,52H
+0079 540F             85                     ANL             A,#0FH
+007B F537             86                     MOV             cDisplayBuffer+7,A
+007D E552             87                     MOV             A,52H
+007F C4               88                     SWAP    A
+0080 540F             89                     ANL             A,#0FH
+0082 F536             90                     MOV             cDisplayBuffer+6,A
+                      91     
+                      92                     
+0084 22               93                     RET
+                      94                     
+                      95     
+                      96     
+                      97     ;---------------BinDec---------------------------
+                      98     ; °ÑË«×Ö½ÚµÄÊ®Áù½øÖÆÊ×ª»»ÎªBCDÂë
+                      99     ; ÊäÈë:  R0 - Ê®Áù½øÖÆÊµÄ¸ß×Ö½ÚµØÖ·
+                     100     ;        R1 - ×ª»»ºóBCDÂëµÄ¸ßÎ»µØÖ·
+0085                 101     BinDec:
+0085 E4              102                     CLR             A
+0086 F7              103             MOV             @R1,A
+0087 09              104                     INC             R1
+0088 F7              105                     MOV             @R1,A
+0089 09              106                     INC             R1
+008A F7              107                     MOV             @R1,A
+008B C007            108                     PUSH            7
+008D 7F10            109                     MOV             R7,#16
+008F                 110     BD1:
+008F C3              111                     CLR             C
+0090 08              112                     INC             R0
+0091 E6              113                     MOV             A,@R0
+0092 33              114                     RLC             A
+0093 F6              115                     MOV             @R0,A
+0094 18              116                     DEC             R0
+0095 E6              117                     MOV             A,@R0
+0096 33              118                     RLC             A
+0097 F6              119                     MOV             @R0,A
+                     120     
+0098 C001            121                     PUSH            1
+009A E7              122                     MOV             A,@R1
+009B 37              123                     ADDC            A,@R1
+009C D4              124                     DA              A
+A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 09:25:22 PAGE     3
+
+009D F7              125                     MOV             @R1,A
+009E 19              126                     DEC             R1
+009F E7              127                     MOV             A,@R1
+00A0 37              128                     ADDC            A,@R1
+00A1 D4              129                     DA              A
+00A2 F7              130                     MOV             @R1,A
+00A3 19              131                     DEC             R1
+00A4 E7              132                     MOV             A,@R1
+00A5 37              133                     ADDC            A,@R1
+00A6 D4              134                     DA              A
+00A7 F7              135                     MOV             @R1,A
+00A8 D001            136                     POP             1
+                     137     
+00AA DFE3            138                     DJNZ            R7,BD1
+00AC D007            139                     POP             7
+                     140     
+00AE 22              141                     RET
+                     142     ;---------------BinDec---------------------------
+                     143     
+                     144     
+00AF 3F065B4F        145     DispTable:      DB 3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH
+00B3 666D7D07                
+00B7 7F6F                    
+00B9                 146     Display:
+00B9 E538            147             MOV   A,cDisplayBit
+00BB F5A0            148             MOV     P2,A
+00BD 9000AF          149             MOV     DPTR,#DispTable
+00C0 7430            150             MOV   A,#cDisplayBuffer
+00C2 2538            151             ADD     A,cDisplayBit
+00C4 F8              152             MOV     R0,A
+00C5 E6              153             MOV   A,@R0
+00C6 93              154             MOVC    A,@A+DPTR
+00C7 F590            155             MOV     P1,A
+00C9 0538            156             INC     cDisplayBit
+00CB 533807          157             ANL     cDisplayBit,#7
+00CE 22              158              ret
+                     159             
+                     160     
+                     161     
+                     162     
+                     163                     END
+A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 09:25:22 PAGE     4
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+BD1. . . . . . . .  C ADDR   008FH   A   
+BINDEC . . . . . .  C ADDR   0085H   A   
+CC1. . . . . . . .  C ADDR   0048H   A   
+CCOUNT . . . . . .  N NUMB   0040H   A   
+CDISPLAYBIT. . . .  N NUMB   0038H   A   
+CDISPLAYBUFFER . .  N NUMB   0030H   A   
+COUNT. . . . . . .  C ADDR   0040H   A   
+DC1. . . . . . . .  C ADDR   0055H   A   
+DECCOUNT . . . . .  C ADDR   004CH   A   
+DISPLAY. . . . . .  C ADDR   00B9H   A   
+DISPTABLE. . . . .  C ADDR   00AFH   A   
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+EX0. . . . . . . .  B ADDR   00A8H.0 A   
+INT0PROC . . . . .  C ADDR   0034H   A   
+IT0. . . . . . . .  B ADDR   0088H.0 A   
+M1 . . . . . . . .  C ADDR   002BH   A   
+M2 . . . . . . . .  C ADDR   003CH   A   
+M3 . . . . . . . .  C ADDR   003FH   A   
+MAIN . . . . . . .  C ADDR   0006H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+TODISPLAY. . . . .  C ADDR   0059H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
