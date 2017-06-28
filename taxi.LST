@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 14:49:38 PAGE     1
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.02
@@ -7,259 +7,711 @@ ASSEMBLER INVOKED BY: D:\programe files\C51\BIN\A51.EXE taxi.asm SET(SMALL) DEBU
 
 LOC  OBJ            LINE     SOURCE
 
-  0030                 1     cDisplayBuffer  EQU             30H             ;ÔÚÏÔÊ¾µÄÄÚÈÝÔÚ30H-37H
-  003C                 2     cDisplayBit             EQU             3CH             ;µ±Ç°ÏÔÊ¾µÄÎ»
-  0040                 3     cCount                  EQU             40H             ;40HºÍ41HÎª×ª¹µÄÈ¦Ê
-                       4     
-                       5     
-0000                   6             ORG     0000H
-0000 020006            7                     LJMP    Main
-0003                   8                     ORG             0003H
-0003 020047            9                     LJMP    INT0PROC
-0006                  10     Main:
-0006 7A01             11                     MOV             R2,#1
+                       1     ; ³ö×â³µ¼Æ·ÑÆ÷
+                       2     
+                       3     ;¶¨ÒåÈ«¾Ö±äÁ¿£¨¼ì²éÍ¨¹£© 
+  0010                 4     cDispBuffer             EQU             10H             ;Ò»¹²12¿éÆÁÄ»£¬Ò»¹²12×Ö½Ú 10H - 1BH
+  001C                 5     cDisplayBit             EQU             1CH         ;ÕÔÚÏÔÊ¾µÄÆÁÄ»        1CH
+                       6     
+  001D                 7     cOneSecond              EQU             1DH             ;Ê±¼äÖÐ¶Ï´ïµ½1ÃëÖ¸Ê¾Î»
+  001E                 8     cOneMSecond     EQU             1EH             ;Ê±¼äÖÐ¶Ï´ïµ½1ºÁÃëÖ¸Ê¾Î»
+                       9     
+  001F                10     IntOneSecond    EQU             1FH             ;¼ÇÂ¼Ò»ÃëÄÚÍâ²¿ÖÐ¶Ï´ÎÊ£¬µ¥×Ö½Ú
+  0020                11     TotalInto               EQU             20H             ;ÀÛ¼ÓËùÓÐÍâ²¿ÖÐ¶Ï´ÎÊ£¬Ë«×Ö½Ú 20H-21
+                             H
                       12     
-0008 753000           13                     MOV             cDisplayBuffer,#0
-000B 753100           14                     MOV             cDisplayBuffer+1,#0
-000E 753200           15                     MOV             cDisplayBuffer+2,#0
-0011 753300           16                     MOV             cDisplayBuffer+3,#0
-                      17     
-0014 753400           18                     MOV             cDisplayBuffer+4,#0
-0017 753500           19                     MOV             cDisplayBuffer+5,#0
-001A 753600           20                     MOV             cDisplayBuffer+6,#0
-001D 753700           21                     MOV             cDisplayBuffer+7,#0
-                      22     
-0020 753D00           23                     MOV             3DH,#0
-0023 7C00             24                     MOV             R4,#0
-0025 D2A8             25                     SETB    EX0
-0027 D2AF             26                     SETB    EA
-0029 D288             27                     SETB    IT0
-002B                  28     M1:
-002B 12014C           29                     LCALL   Display
-002E 7800             30                     MOV             R0,#0
-0030 D8FE             31                     DJNZ    R0,$
-0032 00               32                     nop
-0033 120057           33                     LCALL   DISTANCE
-0036 1200A0           34                     LCALL   DistanceToDisplay
-0039 12006C           35                     LCALL   FEE
-003C 1200C8           36                     LCALL   FeeTodisplay
-003F 12008D           37                     LCALL   SPEED
-0042 1200F0           38                     LCALL   SpeedTodisplAy
-                      39     
-                      40     
-                      41     
-                      42     
-                      43     
-                      44     
-                      45     
-                      46     
-0045 80E4             47                     SJMP    M1
-                      48     
-0047                  49     INT0PROC:;¼ÆÊ×ª¹µÄÈ¦Ê           
-0047 30B703           50                     JNB             P3.7,M2
-004A 12004E           51                     LCALL   Count
-004D                  52     M2:
-                      53     
-004D 32               54                     RETI
+  0023                13     Kilometer               EQU             23H             ;×Ü¹«ÀïÊ(¸ßÎ»µØÖ·)£¬È×Ö½Ú        23
+                             H-25H
+  0028                14     KilometerBcd                    EQU             28H             ;×Ü¹«ÀïÊ(¸ßÎ»µØÖ·)£¬È×Ö½Ú  
+                                   27H-30H
+                      15     
+  0032                16     Speed                   EQU             32H             ;ËÙ¶È(¸ßÎ»µØÖ·)£¬È×Ö½Ú          32H
+                             -34H
+  0036                17     SpeedBcd                EQU             36H             ;ËÙ¶ÈbcdÂë(¸ßÎ»µØÖ·)£¬ËÄ×Ö½Ú  36H-3
+                             9H
+                      18     
+  0040                19     Buffer                  EQU             40H             ;¶à×Ö½Ú³·¨»º³åÇø
+                      20     
+  0050                21     PriceBuffer1                    EQU             50H
+  0055                22     PriceBuffer2                    EQU             55H
+                      23     
+                      24     
+0000                  25                     ORG             0000H
+0000 020030           26                     LJMP            Initialization    ;Ö÷Ñ­»·
+                      27     
+0003                  28                     ORG             0003H
+0003 02008B           29                     LJMP            Intro ;Íâ²¿ÖÐ¶Ï0
+                      30     
+000B                  31                     ORG             000BH
+000B 0200A3           32                     LJMP            TimerInto ;ÄÚ²¿¼ÆÊÆ÷ÖÐ¶Ï0
+                      33     
+0030                  34                     ORG             30H
+                      35     
+                      36     ;³õÊ¼»¯±äÁ¿£¨¼ì²éÍ¨¹£©
+0030                  37     Initialization: 
+0030 758160           38                     MOV             SP,#60H;ÉèÖÃ¶ÑÕ»Ö¸Õë
+0033 751C00           39                     MOV             cDisplayBit,#0  
+0036 751000           40                     MOV             cDispBuffer,#0
+0039 751108           41                     MOV             cDispBuffer+1,#8
+003C 751200           42                     MOV             cDispBuffer+2,#0
+003F 751300           43                     MOV             cDispBuffer+3,#0
+0042 751400           44                     MOV             cDispBuffer+4,#0
+0045 751500           45                     MOV             cDispBuffer+5,#0
+0048 751600           46                     MOV             cDispBuffer+6,#0
+004B 751700           47                     MOV             cDispBuffer+7,#0
+004E 751800           48                     MOV             cDispBuffer+8,#0
+0051 751900           49                     MOV             cDispBuffer+9,#0
+0054 751A00           50                     MOV             cDispBuffer+10,#0
+0057 751B00           51                     MOV             cDispBuffer+11,#0
+                      52     
+005A 751D00           53                     MOV             cOneSecond,#0 
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     2
+
+005D 751E00           54                     MOV     cOneMSecond,#0 ;Ê±ÖÓÖÐ¶ÏÖ¸Ê¾Æ÷
                       55     
-                      56     
-004E                  57     Count:
-004E 0541             58                     INC             41H
-A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 14:49:38 PAGE     2
+0060 751F00           56                     MOV             IntOneSecond,#0
+0063 752000           57                     MOV             TotalInto,#0
+0066 752100           58                     MOV             TotalInto+1,#0 ;Á½¸öÍâ²¿ÖÐ¶ÏÀÛ¼ÓÆ÷
+                      59     
+                      60                     
+                      61                     ;ÖÐ¶Ï³õÊ¼»¯£¬¶¨Ê±Æ÷¸³³õÖµ£¬ÉèÖÃºÃÍâ²¿ÖÐ¶Ï£¨¼ì²éÍ¨¹£©                    
+                      62                     ;ÉèÖÃ¶¨Ê±Æ÷
+0069 758901           63                     MOV             TMOD,#01H
+006C D28C             64                     SETB    TR0
+006E D2A9             65                     SETB    ET0
+0070 758CF8           66                     MOV             TH0,#0F8H                                                  
+                                                                                  ;0x0FA2A
+0073 758ACD           67                     MOV             TL0,#0CDH
+                      68                     
+                      69                     ;ÉèÖÃÍâ²¿ÖÐ¶Ï
+0076 D2A8             70                     SETB    EX0
+0078 D2AF             71                     SETB    EA
+007A D288             72                     SETB    IT0     
+                      73     
+                      74     ;³õÊ¼»¯±äÁ¿£¨¼ì²éÍ¨¹£©
+                      75     
+                      76             ;       MOV cMotorCount,#56H
+                      77             ;       MOV cMotorCount+1,#5H
+007C                  78     MainLoop:;Ö÷Ñ­»·
+                      79                     ;Ã¿¸ô1ÃëÖÓ¼ÆËãÒ»´ÎËÙ¶È.
+                      80                     ;²»¶Ï¼ÆËã²¢ÏÔÊ¾Àï³Ì
+                      81             
+                      82     
+007C 30B706           83                     JNB             P3.7,Stop;µÈ´P3.7±»ÖÃ1£¬¼´°´Å¥±»°´ÏÂ
+007F D2A8             84                     SETB    EX0     ;¿ÕÓï¾ä
+0081 D288             85                     SETB    IT0     ;¿ÕÓï¾ä
+0083 80F7             86                     SJMP    MainLoop ;Ñ­»·
+0085                  87     Stop:  ;°´Å¥±»°´ÏÂ¾ÍÍ£Ö¹
+0085 C2A8             88                     CLR             EX0        ;¹Ø±ÕÖÐ¶ÏÏµÍ³
+0087 C288             89                     CLR             IT0             ;¸Ä³ÉµçÆ½´¥·¢           
+0089 80F1             90                     SJMP    MainLoop ;Ñ­»·
+                      91     
+                      92     ;Íâ²¿ÖÐ¶ÏÌø×ª£¨¼ì²éÍ¨¹£©
+                      93     ;Íâ²¿ÖÐ¶ÏÓÃÓÚÄ£ÄâËÙ¶È£¬ÖÐ¶ÏµÄÊ±ºòÖ´ÐÐ¼òµ¥¼ÓÒ»
+008B                  94     Intro:  
+008B C0D0             95                     PUSH PSW
+008D C0E0             96                     PUSH ACC
+008F C3               97                     CLR     C  ;±£Ö¤CÎ»Îª0
+0090 E520             98                     MOV             A,TotalInto   ;¶ÔÖÐ¶Ï´ÎÊcMotorCount£¬Ë«×Ö½ÚÔö¼Ó1
+0092 3401             99                     ADDC            A,#1               ;¶ÔÖÐ¶Ï´ÎÊcMotorCount£¬Ë«×Ö½ÚÔö¼Ó1
+0094 F520            100                     MOV             TotalInto,A  ;¶ÔÖÐ¶Ï´ÎÊcMotorCount£¬Ë«×Ö½ÚÔö¼Ó1
+0096 E521            101                     MOV             A,TotalInto+1;¶ÔÖÐ¶Ï´ÎÊcMotorCount£¬Ë«×Ö½ÚÔö¼Ó1
+0098 3400            102                     ADDC    A,#0               ;¶ÔÖÐ¶Ï´ÎÊcMotorCount£¬Ë«×Ö½ÚÔö¼Ó1
+009A F521            103                     MOV             TotalInto+1,A;¶ÔÖÐ¶Ï´ÎÊcMotorCount£¬Ë«×Ö½ÚÔö¼Ó1
+009C 051F            104                     INC             IntOneSecond ;Ôö¼ÓÒ»ÃëÄÚµÄÖÐ¶Ï´ÎÊ
+009E D0E0            105                     POP ACC
+00A0 D0D0            106                     POP PSW 
+00A2 32              107                     RETI
+                     108     ;Íâ²¿ÖÐ¶ÏÌø×ª £¨¼ì²éÍ¨¹£© 
+                     109       
+                     110     ;Ê±ÖÓÖÐ¶ÏÌø×ª£¨¼ì²éÍ¨¹£©
+                     111     ;ÉèÖÃ1msµÄ¶¨Ê±ÖÐ¶Ï£¬²»¶Ïµ÷ÓÃÏÔÊ¾µÄÉ¨Ãè³ÌÐò
+                     112     ;ÓÃÒ»¸ö±äÁ¿£¬Ã¿ÖÐ¶ÏÒ»´Î¼Ó1£¬µ½ÁË10ºóÖÃÉÏbt10ms±êÖ¾
+00A3                 113     TimerInto:
+00A3 1200D1          114                     LCALL   Display
+                     115     
+00A6 051E            116                     INC             cOneMSecond
+00A8 758CF8          117                     MOV     TH0,#0F8H
+00AB 758ACD          118                     MOV             TL0,#0CDH ;ÑÓÊ±1msÓÃF8CD
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     3
 
-0050 E541             59                     MOV             A,41H
-0052 7002             60                     JNZ             CC1
-0054 0540             61                     INC             40H
-0056                  62     CC1:            
-0056 22               63                     RET
-                      64     
-0057                  65     DISTANCE:
-0057 E541             66                     MOV     A,41H;40HºÍ41H´æ´¢È¦Ê
-0059 75F0B7           67                     MOV     B,#0B7H
-005C A4               68                     MUL     AB
-005D F545             69                     MOV     45H,A;Àï³ÌÊ´æÈë44HºÍ45H
-005F 85F04A           70                     MOV     4AH,B
-0062 75F0B7           71                     MOV     B,#0B7H
-0065 E540             72                     MOV     A,40H
-0067 A4               73                     MUL     AB
-0068 254A             74                     ADD     A,4AH
-006A F544             75                     MOV     44H,A
-                      76     
-006C                  77     FEE:
-006C E545             78                     MOV     A,45H;44HºÍ45H´æ´¢Àï³ÌÊ
-006E 75F01A           79                     MOV     B,#01AH
-0071 A4               80                     MUL     AB
-0072 F549             81                     MOV     49H,A;½«·ÑÓÃ´æÈë48HºÍ49H
-0074 85F04A           82                     MOV     4AH,B
-0077 75F01A           83                     MOV     B,#1AH
-007A E544             84                     MOV     A,44H
-007C A4               85                     MUL     AB
-007D 254A             86                     ADD     A,4AH
-007F F548             87                     MOV     48H,A;°Ñ·ÑÓÃ¼ÓÉÏÆð²½¼Û8¿é
-0081 E549             88                     MOV     A,49H
-0083 3420             89                     ADDC    A,#20H
-0085 F549             90                     MOV     49H,A
-0087 E548             91                     MOV     A,48H
-0089 3403             92                     ADDC    A,#03H
-008B F548             93                     MOV     48H,A
-008D                  94     SPEED:
-008D E6               95                     MOV     A,@R0
-008E 75F0B7           96                     MOV     B,#0B7H
-0091 A4               97                     MUL     AB
-0092 F545             98                     MOV     45H,A
-0094 85F04A           99                     MOV     4AH,B
-0097 75F0B7          100                     MOV     B,#0B7H
-009A E7              101                     MOV     A,@R1
-009B A4              102                     MUL     AB
-009C 254A            103                     ADD     A,4AH
-009E F544            104                     MOV     44H,A
-00A0                 105     DistanceToDisplay:
-00A0 854042          106                     MOV             42H,40H
-00A3 854143          107                     MOV             43H,41H
-00A6 7842            108                     MOV             R0,#42H         ;42HÎª¸ßÎ»×Ö½Ú£¬43HÎªµÍÎ»×Ö½Ú
-00A8 7950            109                     MOV             R1,#50H         ;½á¹ûÎª6Î»BCDÂë
-00AA 120118          110                     LCALL   BinDec          ;Ö»È¡ÓÃËÄÎ»BCDÂë
-                     111                     
-00AD E551            112                     MOV             A,51H
-00AF 540F            113                     ANL             A,#0FH
-00B1 F535            114                     MOV             cDisplayBuffer+5,A
-00B3 E551            115                     MOV             A,51H
-00B5 C4              116                     SWAP    A
-00B6 540F            117                     ANL             A,#0FH
-00B8 F534            118                     MOV             cDisplayBuffer+4,A
-                     119                     
-00BA E552            120                     MOV             A,52H
-00BC 540F            121                     ANL             A,#0FH
-00BE F537            122                     MOV             cDisplayBuffer+7,A
-00C0 E552            123                     MOV             A,52H
-00C2 C4              124                     SWAP    A
-A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 14:49:38 PAGE     3
+00AE E51E            119                     MOV             A,cOneMSecond
+00B0 B40A13          120                     CJNE    A,#10,EndTimerInto;ÈôÖÐ¶ÏÖ®ºóÃ»ÓÐµ½10´ÎÔòÖ±½Ó·µ»Ø
+                     121     
+00B3 1200FD          122                     LCALL   CalculateDistance  ;Èç¹ûÒÑ¾­µ½10£¬Ôò¼ÆËãÒ»´ÎÀï³Ì
+                     123     
+00B6 751E00          124                     MOV     cOneMSecond,#0;¶¨Ê±ÖÐ¶Ï¹é0ÖØÐÂËã10´Î
+00B9 051D            125                     INC     cOneSecond;Ã¿10ms ¾ÍÔö¼ÓÒ»´ÎÃëÖ¸Ê¾Æ÷
+00BB E51D            126                     MOV             A,cOneSecond;ÃëÊ·Åµ½A¼Ä´æÆ÷ÓÃÀ´ÅÐ¶ÏÌø×ª
+00BD B46406          127                     CJNE    A,#100,EndTimerInto ;Ò»ÃëµÈÓÚ1000ms
+00C0 751D00          128                     MOV     cOneSecond,#0;ÃëÖ¸Ê¾Æ÷Çå0
+                     129     
+00C3 12020E          130                     LCALL   MyCalSpeed;Ã¿Ãë¼ÆËãÒ»´ÎËÙ¶È
+                     131     
+00C6                 132     EndTimerInto:
+                     133     
+00C6 32              134                     RETI    ;Ê±ÖÓÖÐ¶Ï·µ»Ø
+                     135     ;Ê±ÖÓÖÐ¶ÏÌø×ª£¨¼ì²éÍ¨¹£©
+                     136     
+                     137     
+                     138     ;ÏÔÊ¾ÆÁº¯Ê      £¨¼ì²éÍ¨¹£©
+                     139     ;P1.7ÎªÐ¡Êµã   
+                     140     ;ÊÂë¹ÜÉ¨Ãè³ÌÐò£¬ÔÚ¶¨Ê±ÖÐ¶ÏÀïµ÷ÓÃ
+00C7 3F065B4F        141     DispTable:      DB              3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH;ÈÔÈ»Ê¹ÓÃÔ­À´µÄ10¸öÊ
+                             ×ÖµÄ¾§Ìå¹ÜÏÔÊ¾¾ØÕó
+00CB 666D7D07                
+00CF 7F6F                    
+00D1                 142     Display:
+00D1 E51C            143                     MOV     A,cDisplayBit
+00D3 F5A0            144                     MOV             P2,A
+00D5 9000C7          145                     MOV             DPTR,#DispTable
+00D8 7410            146                     MOV     A,#cDispBuffer
+00DA 251C            147                     ADD     A,cDisplayBit
+00DC F8              148                     MOV             R0,A
+00DD E6              149                     MOV     A,@R0
+00DE 93              150                     MOVC    A,@A+DPTR
+00DF F590            151                     MOV             P1,A
+                     152     
+                     153                     ;¿¼ÂÇÄÄÐ©Î»ÐèÒª¼ÓÉÏÐ¡Êµã
+00E1 E51C            154                     MOV             A,cDisplayBit;È¡³öÄ¿Ç°ÏÔÊ¾µÄÆÁÄ»
+00E3 B40102          155                     CJNE    A,#1,Next1
+00E6 D297            156                     SETB    P1.7 ;1ºÅÆÁ¼ÓÐ¡Êµã
+00E8                 157     Next1:  ;5ºÅÆÁÄ»Ôö¼ÓÐ¡Êµã
+00E8 B40502          158                     CJNE    A,#5,Next2
+00EB D297            159                     SETB    P1.7
+00ED                 160     Next2:  ;7ºÅÆÁ¼ÓÐ¡Êµã
+00ED B40A02          161                     CJNE    A,#10,Next3
+00F0 D297            162                     SETB    P1.7 ;10ºÅÏÔÊ¾ÆÁ¼ÓÐ¡Êµã
+00F2                 163     Next3:
+00F2 051C            164                     INC             cDisplayBit     ;ÏÔÊ¾ÆÁÒÆµ½ÏÂÒ»¿é
+00F4 E51C            165                     MOV     A,cDisplayBit
+00F6 B40C03          166                     CJNE    A,#12,EndDisp
+00F9 751C00          167                     MOV     cDisplayBit,#0;ÕâÁ½²½Ïàµ±ÓÚ½«ÏÔÊ¾ÆÁÏÞÖÆÔÚ0-12Ö®¼ä£¬Ïàµ±ÓÚÈ¡Ä£ÔËËãmo
+                             d 12
+00FC                 168     EndDisp:                
+00FC 22              169                     RET
+                     170     ;ÏÔÊ¾ÆÁº¯Ê      £¨¼ì²éÍ¨¹£©
+                     171     
+                     172     
+                     173     ;¼ÆËã²¢ÏÔÊ¾×ÜÀï³Ì£¨¼ì²éÍ¨¹£©
+00FD                 174     CalculateDistance:
+00FD E520            175                     MOV             A,TotalInto ;È¡Íâ²¿ÖÐ¶Ï×ÜÊ
+00FF 75F0B7          176                     MOV             B,#0B7H;ÖÜ³¤ÊÇ1.83£¬ËùÒÔÕâÀïÓÃ183½øÐÐÔËËã
+                     177                     ;½øÐÐË«×Ö½ÚÓëµ¥×Ö½Ú£¨0B7H£©Ïà³ËµÄ²½Öè
+0102 A4              178                     MUL             AB;
+0103 F525            179                     MOV             Kilometer+2,A
+0105 85F024          180                     MOV             Kilometer+1,B
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     4
 
-00C3 540F            125                     ANL             A,#0FH
-00C5 F536            126                     MOV             cDisplayBuffer+6,A
-00C7 22              127                     RET
-                     128     
-00C8                 129     FeeToDisplay:
-                     130     
-00C8 854842          131                     MOV             42H,48H
-00CB 854943          132                     MOV             43H,49H
-00CE 7842            133                     MOV             R0,#42H         ;42HÎª¸ßÎ»×Ö½Ú£¬43HÎªµÍÎ»×Ö½Ú
-00D0 7950            134                     MOV             R1,#50H         ;½á¹ûÎª6Î»BCDÂë
-00D2 120118          135                     LCALL   BinDec
-                     136                     
-00D5 E551            137                     MOV             A,51H
-00D7 540F            138                     ANL             A,#0FH
-00D9 F531            139                     MOV             cDisplayBuffer+1,A
-00DB E551            140                     MOV             A,51H
-00DD C4              141                     SWAP    A
-00DE 540F            142                     ANL             A,#0FH
-00E0 F530            143                     MOV             cDisplayBuffer+0,A
-                     144                     
-00E2 E552            145                     MOV             A,52H
-00E4 540F            146                     ANL             A,#0FH
-00E6 F533            147                     MOV             cDisplayBuffer+3,A
-00E8 E552            148                     MOV             A,52H
-00EA C4              149                     SWAP    A
-00EB 540F            150                     ANL             A,#0FH
-00ED F532            151                     MOV             cDisplayBuffer+2,A
-00EF 22              152                     RET             
-                     153     
-00F0                 154     SpeedToDisplay:
-                     155     
-00F0 854642          156                     MOV             42H,46H
-00F3 854743          157                     MOV             43H,47H
-00F6 7842            158                     MOV             R0,#42H         ;42HÎª¸ßÎ»×Ö½Ú£¬43HÎªµÍÎ»×Ö½Ú
-00F8 7950            159                     MOV             R1,#50H         ;½á¹ûÎª6Î»BCDÂë
-00FA 120118          160                     LCALL   BinDec
-                     161                     
-00FD E551            162                     MOV             A,51H
-00FF 540F            163                     ANL             A,#0FH
-0101 F539            164                     MOV             cDisplayBuffer+9,A
-0103 E551            165                     MOV             A,51H
-0105 C4              166                     SWAP    A
-0106 540F            167                     ANL             A,#0FH
-0108 F538            168                     MOV             cDisplayBuffer+8,A
-                     169                     
-010A E552            170                     MOV             A,52H
-010C 540F            171                     ANL             A,#0FH
-010E F53B            172                     MOV             cDisplayBuffer+11,A
-0110 E552            173                     MOV             A,52H
-0112 C4              174                     SWAP    A
-0113 540F            175                     ANL             A,#0FH
-0115 F53A            176                     MOV             cDisplayBuffer+10,A
-0117 22              177                     RET
-                     178     
-                     179     ;---------------BinDec---------------------------
-                     180     ; °ÑË«×Ö½ÚµÄÊ®Áù½øÖÆÊ×ª»»ÎªBCDÂë
-                     181     ; ÊäÈë:  R0 - Ê®Áù½øÖÆÊµÄ¸ß×Ö½ÚµØÖ·
-                     182     ;        R1 - ×ª»»ºóBCDÂëµÄ¸ßÎ»µØÖ·
-0118                 183     BinDec:
-0118 E4              184                     CLR             A
-0119 F7              185             MOV             @R1,A
-011A 09              186                     INC             R1
-011B F7              187                     MOV             @R1,A
-011C 09              188                     INC             R1
-011D F7              189                     MOV             @R1,A
-011E C007            190                     PUSH            7
-A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 14:49:38 PAGE     4
+0108 E521            181                     MOV             A,TotalInto+1
+010A 75F0B7          182                     MOV             B,#0B7H
+010D A4              183                     MUL             AB
+010E 2524            184                     ADD             A,Kilometer+1
+0110 F524            185                     MOV             Kilometer+1,A
+0112 7400            186                     MOV             A,#0
+0114 35F0            187                     ADDC    A,B
+0116 F523            188                     MOV             Kilometer,A
+                     189                     ;Íê³Éµ¥×Ö½ÚÓëË«×Ö½Ú³Ë·¨£¬½á¹û·ÅKilometerµÄÈ¸ö×Ö½ÚÖÐ£¨¼ì²éÍ¨¹£©  
+                     190     
+                     191                     ;ÏÂÃæ×é×°¶àÎ»Ê³·¨³ÌÐòµÄ²ÎÊ
+                     192                     ;16½øÖÆµÄÀï³ÌÊ³100
+0118 754064          193                     MOV Buffer,#64H
+011B 754100          194                     MOV Buffer+1,#0
+011E 754200          195                     MOV Buffer+2,#0
+0121 754300          196                     MOV Buffer+3,#0
+0124 852344          197                     MOV     Buffer+4,Kilometer
+0127 852445          198                     MOV     Buffer+5,Kilometer+1
+012A 852546          199                     MOV     Buffer+6,Kilometer+2
+012D 754700          200                     MOV Buffer+7,#0
+0130 7841            201                     MOV     R0,#Buffer+1
+0132 7942            202                     MOV     R1,#Buffer+2
+0134 7E02            203                     MOV     R6,#2
+0136 7F06            204                     MOV     R7,#6    
+0138 120294          205                     LCALL   DivBytes ;µ÷ÓÃ¶à×Ö½Ú³·¨³ÌÐò                                        
+                                   
+013B 854623          206                     MOV     Kilometer,Buffer+6
+013E 854724          207                     MOV     Kilometer+1,Buffer+7 ;½«µÃµ½µÄ³100ÒÔºóµÄÀï³ÌÊÖØÐÂ·Å»ØÀï³ÌÊµÄ´æ´¢¿Õ¼
+                             ä
+                     208                     
+                     209                     ;ÏÂÃæ¿ªÊ¼½«¹«Àï×ª³É10½øÖÆ
+                     210                     ;½«16½øÖÆÓë10½øÖÆ¹«ÀïµÄÄÚ´æÎ»ÖÃ·Åµ½R0ºÍR1£¬×÷×ª10½øÖÆ³ÌÐòµÄ²ÎÊ×¼±¸      
+0141 7823            211                     MOV             R0,#Kilometer
+0143 7928            212                     MOV             R1,#KilometerBcd
+0145 12032F          213                     LCALL   BinDec;µ÷ÓÃ10½øÖÆ×ª»»³ÌÐò£¬µÃµ½Àï³Ì10½øÖÆÂë
+                     214                     ;ÒÔÏÂ¹³ÌÊÇ½«×ª»»ºÃµÄ10½øÖÆÀï³ÌÊ°´°ë×Ö½Ú°áÔËµ½ÏÔÊ¾»º³åÇøÖÐ
+                     215                     ;Àï³ÌÊÇ4567ºÅÏÔÊ¾ÆÁ£¬ÒòÎªÉè¼Æ°ë×Ö½ÚÒÆÎ»£¬ËùÒÔÒ»¿éÒ»¿é°á
+0148 53280F          216                     ANL             KilometerBcd,#00001111B
+014B 852814          217                     MOV             cDispBuffer+4,KilometerBcd;×î¸ßÎ»
+014E E529            218                     MOV             A,KilometerBcd+1
+0150 54F0            219                     ANL             A,#11110000B
+0152 C4              220                     SWAP    A
+0153 F515            221                     MOV             cDispBuffer+5,A;
+0155 53290F          222                     ANL             KilometerBcd+1,#00001111B
+0158 852916          223                     MOV             cDispBuffer+6,KilometerBcd+1;
+015B E52A            224                     MOV             A,KilometerBcd+2
+015D 54F0            225                     ANL             A,#11110000B
+015F C4              226                     SWAP    A
+0160 F517            227                     MOV             cDispBuffer+7,A;×îµÍÎ»
+                     228     
+                     229                     ;ÒÆÎ»Íê±Ï£¬Àï³ÌÒÆµ½4-7ºÅÏÔÊ¾ÆÁ
+                     230                     ;ÏÔÊ¾ÆÁ4-7ÏÔÊ¾´Ó×î¸ßÎ»¿ªÊ¼µÄÀï³Ì¡££¨¼ì²éÍ¨¹£©   
+                     231     
+                     232                     ;ÒÔÏÂ×öÒ»¸öÅÐ¶Ï£¬4£¬5ºÅÆÁÄ»·Ö±ð³ÖÓÐÀï³ÌÊÕûÊ²¿·Ö£»
+                     233                     ;ÈçºÎÕûÊ²¿·ÖÊÇ0¾ÍÃ»ÓÐ±ØÒª¼ÆËãËÙ¶È£¬Ö»ÓÐÕûÊ²¿·Ö³¬¹2¹«Àï²ÅÐèÒª¼ÆËã·ÑÓÃ 
+0162 E514            234                     MOV             A,cDispBuffer+4
+0164 B4000C          235                     CJNE    A,#0,CalPrice
+0167 E515            236                     MOV             A,cDispBuffer+5
+0169 B40002          237                     CJNE    A,#0,NextCondition
+016C                 238     EndCal:
+016C 410D            239                     JMP     EndCalculate;ÈôÕûÊÁ½Î»¶¼ÊÇ0£¬ÔòÖ±½Ó½áÊø¼ÆËã
+016E                 240     NextCondition: ;10Î»ÊÇ0£¬¸öÎ»²»ÊÇ0µÄÇé¿ö
+016E B40102          241                     CJNE    A,#1,CalPrice;Èç¹û¸öÎ»´óÓÚÒ»£¬¾ÍÊÇ2¹«Àï£¬¾Í¼ÆËã¼Û¸ñ
+0171 410D            242                     JMP     EndCalculate  ;Èç¹û¸öÎ»Ö»ÊÇ1£¬ÔòÒ²²»ÐèÒª¼ÆËã¼Û¸ñ£¨¼ì²éÍ¨¹£©
+                     243                     
+                     244     ;Í¨¹cDispBuffer±£´æµÄ10½øÖÆ¹«ÀïÊ£¬¼ÆËã·ÑÓÃ
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     5
 
-0120 7F10            191                     MOV             R7,#16
-0122                 192     BD1:
-0122 C3              193                     CLR             C
-0123 08              194                     INC             R0
-0124 E6              195                     MOV             A,@R0
-0125 33              196                     RLC             A
-0126 F6              197                     MOV             @R0,A
-0127 18              198                     DEC             R0
-0128 E6              199                     MOV             A,@R0
-0129 33              200                     RLC             A
-012A F6              201                     MOV             @R0,A
-                     202     
-012B C001            203                     PUSH            1
-012D E7              204                     MOV             A,@R1
-012E 37              205                     ADDC            A,@R1
-012F D4              206                     DA              A
-0130 F7              207                     MOV             @R1,A
-0131 19              208                     DEC             R1
-0132 E7              209                     MOV             A,@R1
-0133 37              210                     ADDC            A,@R1
-0134 D4              211                     DA              A
-0135 F7              212                     MOV             @R1,A
-0136 19              213                     DEC             R1
-0137 E7              214                     MOV             A,@R1
-0138 37              215                     ADDC            A,@R1
-0139 D4              216                     DA              A
-013A F7              217                     MOV             @R1,A
-013B D001            218                     POP             1
-                     219     
-013D DFE3            220                     DJNZ            R7,BD1
-013F D007            221                     POP             7
-                     222     
-0141 22              223                     RET
-                     224     ;---------------BinDec---------------------------
-                     225     
-                     226     
-0142 3F065B4F        227     DispTable:      DB 3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH
-0146 666D7D07                
-014A 7F6F                    
-014C                 228     Display:
-014C E53C            229             MOV   A,cDisplayBit
-014E F5A0            230             MOV     P2,A
-0150 900142          231             MOV     DPTR,#DispTable
-0153 7430            232             MOV   A,#cDisplayBuffer
-0155 253C            233             ADD     A,cDisplayBit
-0157 F8              234             MOV     R0,A
-0158 E6              235             MOV   A,@R0
-0159 93              236             MOVC    A,@A+DPTR
-015A F590            237             MOV     P1,A
-015C 053C            238             INC     cDisplayBit
-015E E53C            239             MOV     A,cDisplayBit
-0160 B40C03          240             CJNE    A,#12,EN
-0163 533C10          241             ANL     cDisplayBit,#16
-0166 22              242     EN:     ret
-                     243             
-                     244                     END
-A51 MACRO ASSEMBLER  TAXI                                                                 06/15/2017 14:49:38 PAGE     5
+0173                 245     CalPrice:
+                     246                     ;½«2.6ÖÐµÄ2Óë6·Ö±ð³ËÒÔ¹«ÀïÊµÄÃ¿Ò»Î»
+                     247                     ;×ö10½øÖÆ³Ë·¨ÔËËã
+                     248                     ;È«¹³ÌÓÃ10½øÖÆÀ´±íÊ¾£¬¼´ÓÃÒ»¸öÄÚ´æµ¥Ôª±íÊ¾10½øÖÆÊµÄÆäÖÐÒ»Î»
+                     249               
+                     250                     ;2.6*¹«ÀïÊ
+                     251                     ;10½øÖÆÔËËã
+                     252                     ;Ê×ÏÈÈ¡³ö×îµÍÎ»µÄÀï³ÌÊ×Ö
+                     253     
+0173 E517            254                     MOV             A,cDispBuffer+7
+0175 75F006          255                     MOV             B,#6
+0178 A4              256                     MUL             AB;³Ë6 £¬½á¹ûÈ«²¿ÔÚAÖÐ£¬²»»áµ½B
+                     257                     ;A´æ·ÅÁË³Ë6µÄ½á¹û£¬ËùÒÔÖ±½Ó³10
+0179 75F00A          258                     MOV             B,#10
+017C 84              259                     DIV             AB      ;³10
+017D 85F054          260                     MOV             PriceBuffer1+4,B
+0180 F540            261                     MOV             Buffer,A
+                     262                     
+0182 7816            263                     MOV             R0,#cDispBuffer+6
+0184 7953            264                     MOV             R1,#PriceBuffer1+3
+0186 7A03            265                     MOV             R2,#3
+0188                 266     Loop1:          
+0188 E6              267                     MOV             A,@R0
+0189 75F006          268                     MOV             B,#6
+018C A4              269                     MUL             AB
+018D 2540            270                     ADD             A,Buffer
+018F 75F00A          271                     MOV             B,#10
+0192 84              272                     DIV             AB
+0193 A7F0            273                     MOV             @R1,B
+0195 F540            274                     MOV             Buffer,A
+0197 18              275                     DEC             R0
+0198 19              276                     DEC             R1
+0199 DAED            277                     DJNZ    R2,Loop1
+                     278                     ;ÏÈÈ«²¿³Ë0.6
+                     279     
+                     280                     ;ÔÙÈ«²¿³Ë2
+                     281     
+                     282                                     
+019B 854050          283                     MOV             PriceBuffer1,Buffer
+                     284                     
+019E E517            285                     MOV             A,cDispBuffer+7
+01A0 75F002          286                     MOV             B,#2
+01A3 A4              287                     MUL             AB
+01A4 75F00A          288                     MOV             B,#10
+01A7 84              289                     DIV             AB
+01A8 85F058          290                     MOV             PriceBuffer2+3,B
+01AB F540            291                     MOV             Buffer,A
+                     292                     
+01AD 7816            293                     MOV             R0,#cDispBuffer+6
+01AF 7957            294                     MOV             R1,#PriceBuffer2+2
+01B1 7A03            295                     MOV             R2,#3
+01B3                 296     Loop2:
+01B3 E6              297                     MOV             A,@R0
+01B4 75F002          298                     MOV             B,#2
+01B7 A4              299                     MUL             AB
+01B8 2540            300                     ADD             A,Buffer
+01BA 75F00A          301                     MOV             B,#10
+01BD 84              302                     DIV             AB
+01BE A7F0            303                     MOV             @R1,B
+01C0 F540            304                     MOV             Buffer,A
+01C2 18              305                     DEC             R0
+01C3 19              306                     DEC             R1
+01C4 DAED            307                     DJNZ    R2,Loop2
+                     308                     
+01C6 7853            309                     MOV             R0,#PriceBuffer1+3
+01C8 7958            310                     MOV             R1,#PriceBuffer2+3
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     6
+
+01CA 7A04            311                     MOV             R2,#4
+                     312                     
+01CC 754000          313                     MOV             Buffer,#0
+                     314     
+                     315                     ;½«È«²¿³Ë2ºÍÈ«²¿³Ë0.6µÄ½á¹û¼ÓÆðÀ´
+01CF                 316     Loop3:
+01CF E6              317                     MOV             A,@R0
+01D0 27              318                     ADD             A,@R1
+01D1 2540            319                     ADD             A,Buffer
+01D3 75F00A          320                     MOV             B,#10
+01D6 84              321                     DIV             AB
+01D7 F540            322                     MOV             Buffer,A
+01D9 A6F0            323                     MOV             @R0,B
+01DB 18              324                     DEC             R0
+01DC 19              325                     DEC             R1
+01DD DAF0            326                     DJNZ    R2,Loop3
+                     327                     ;2.6*¹«ÀïÊ
+                     328     
+                     329                     ;µ÷Õû·ÑÓÃ£¬ÉÏÃæ¼ÆËã³öµÄ·ÑÓÃÎª2.6*¹«ÀïÊ£¬¼ÓÉÏ2.8¼´£¨8-2.6*2£©µÃµ½Êµ¼ÊµÄ·ÑÓÃ
+01DF E552            330                     MOV             A,PriceBuffer1+2
+01E1 2408            331                     ADD             A,#8
+01E3 75F00A          332                     MOV             B,#10
+01E6 84              333                     DIV             AB
+01E7 85F052          334                     MOV             PriceBuffer1+2,B
+01EA F540            335                     MOV             Buffer,A
+01EC E551            336                     MOV             A,PriceBuffer1+1
+01EE 2402            337                     ADD             A,#2
+01F0 2540            338                     ADD             A,Buffer
+01F2 75F00A          339                     MOV             B,#10
+01F5 84              340                     DIV             AB
+01F6 85F051          341                     MOV             PriceBuffer1+1,B
+01F9 F540            342                     MOV             Buffer,A
+01FB E550            343                     MOV             A,PriceBuffer1
+01FD 2540            344                     ADD             A,Buffer
+01FF F550            345                     MOV             PriceBuffer1,A
+                     346                     
+                     347                     ;ÏÔÊ¾·ÑÓÃ
+0201 855010          348                     MOV             cDispBuffer,PriceBuffer1
+0204 855111          349                     MOV             cDispBuffer+1,PriceBuffer1+1
+0207 855212          350                     MOV             cDispBuffer+2,PriceBuffer1+2
+020A 855313          351                     MOV             cDispBuffer+3,PriceBuffer1+3
+020D                 352     EndCalculate:
+020D 22              353                     RET
+                     354     ;¼Û¸ñÓëÂ·³Ì¼ÆËãÍê±Ï     £¨¼ì²éÍ¨¹£©
+                     355     
+                     356     ;¼ÆËã³ö×â³µµÄËÙ¶È
+                     357     ;Ã¿ÃëÖÓ¼ÆËãÒ»´Î
+                     358     
+020E                 359     MyCalSpeed:;Õâ¸öº¯ÊÓÃµ½R2
+                     360     ;½øÐÐÒ»´Îµ¥×Ö½ÚÓë£¨19BC£©Ë«×Ö½ÚµÄ³Ë·¨£¬½á¹û´æ·ÅÔÚspeed£¬speed+1,speed+2µ¥ÔªÖÐ)
+020E E51F            361                      MOV A, IntOneSecond
+0210 B40002          362                      CJNE A,#0H,DecreaseOne
+0213 8002            363              SJMP Cal
+                     364     
+0215                 365     DecreaseOne:
+0215 151F            366                      DEC  IntOneSecond
+                     367     
+0217                 368                      Cal:
+0217 C3              369              CLR C
+0218 753200          370                      MOV Speed,#0H;
+021B 753300          371                      MOV Speed+1,#0H;
+021E 753400          372                      MOV Speed+2,#0H;
+0221 753600          373                      MOV SpeedBcd,#0H;               
+0224 753700          374                      MOV SpeedBcd+1,#0H;
+0227 753800          375                      MOV SpeedBcd+2,#0H;
+022A 753900          376                      MOV SpeedBcd+3,#0H;
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     7
+
+                     377     
+                     378     
+022D E51F            379                      MOV A, IntOneSecond
+022F 75F0BC          380                      MOV B,#0BCH;ÏÈ×öµÍÎ»³Ë·¨
+0232 A4              381                      MUL AB
+0233 F534            382                      MOV Speed+2,A
+0235 85F033          383                      MOV Speed+1,B
+                     384                      
+0238 E51F            385                      MOV A, IntOneSecond
+023A 75F019          386                      MOV B,#19H
+023D A4              387                      MUL AB
+                     388                      
+023E 3533            389                      ADDC A,Speed+1
+0240 F533            390                      MOV Speed+1,A
+0242 E5F0            391                      MOV A,B
+0244 3400            392                      ADDC A,#0H
+0246 F532            393                      MOV Speed,A
+                     394     
+                     395     ;½«È×Ö½ÚµÄ16½øÖÆÊ×ª³É10½øÖÆµÄ·½·¨
+0248                 396     Hex2Bcd3Byte:
+0248 C3              397                     CLR C
+0249 E4              398                     CLR A
+024A 7A18            399                     MOV R2,#24;È×Ö½Ú¹²24´Î×ª»»
+                     400        
+024C                 401                     H2B3Loop:
+024C E534            402                     MOV A,Speed+2
+024E 33              403                     RLC A
+024F F534            404                     MOV Speed+2,A
+                     405     
+0251 E533            406                     MOV A,Speed+1
+0253 33              407                     RLC A
+0254 F533            408                     MOV Speed+1,A
+                     409     
+0256 E532            410                     MOV A,Speed
+0258 33              411                     RLC A
+0259 F532            412                     MOV Speed,A
+                     413     
+                     414                     ;½«´Ó×ó±ßÄÃ³öµÄÒ»Î»Ê¿ªÊ¼¶Ñ»µ½SpeedBcdÇø
+025B E539            415                     MOV A,SpeedBcd+3
+025D 3539            416                     ADDC A,SpeedBcd+3
+025F D4              417                     DA A
+0260 F539            418                     MOV SpeedBcd+3,A
+                     419     
+0262 E538            420                     MOV A,SpeedBcd+2
+0264 3538            421                     ADDC A,SpeedBcd+2
+0266 D4              422                     DA A
+0267 F538            423                     MOV SpeedBcd+2,A
+                     424     
+0269 E537            425                     MOV A,SpeedBcd+1
+026B 3537            426                     ADDC A,SpeedBcd+1
+026D D4              427                     DA A
+026E F537            428                     MOV SpeedBcd+1,A
+                     429     
+0270 E536            430                     MOV A,SpeedBcd
+0272 3536            431                     ADDC A,SpeedBcd
+0274 D4              432                     DA A
+0275 F536            433                     MOV SpeedBcd,A
+0277 DAD3            434                     DJNZ R2,H2B3Loop;
+                     435     ;°ÑËÄÎ»ÊµÄËÙ¶ÈÒÆµ½ÏÔÊ¾ÆÁÉÏ
+0279                 436     DisplaySpeed:
+                     437             ;Ö»ÏÔÊ¾   SpeedBcd+1ºÍSpeedBcd+2
+                     438     
+0279 E4              439             CLR A;½«AÇåÁã
+027A 781B            440             MOV R0,#cDispBuffer+11
+                     441     
+027C E538            442             MOV A,SpeedBcd+2;ÄÃµ½SpeedBcd+1
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     8
+
+027E D6              443             XCHD A,@R0;     µÍËÄÎ»½»»»
+027F 03              444             RR A;½«AÑ­»·ÏòÓÒÒÆÎ»
+0280 03              445             RR A
+0281 03              446             RR A
+0282 03              447             RR A
+0283 18              448             DEC R0
+0284 D6              449             XCHD A,@R0;
+                     450     
+0285 18              451             DEC R0
+0286 E537            452             MOV A,SpeedBcd+1;ÄÃµ½SpeedBcd+1
+0288 D6              453             XCHD A,@R0;     µÍËÄÎ»½»»»
+0289 03              454             RR A;½«AÑ­»·ÏòÓÒÒÆÎ»
+028A 03              455             RR A
+028B 03              456             RR A
+028C 03              457             RR A
+028D 18              458             DEC R0
+028E D6              459             XCHD A,@R0;
+                     460     
+028F C3              461             CLR C;³öº¯ÊÔÙ°ÑCÇåÁã
+0290 751F00          462             MOV IntOneSecond,#0H
+0293 22              463             ret
+                     464     ;°ÑÊ®½øÖÆÊÒÆµ½ÏÔÊ¾ÆÁÉÏµÄº¯Ê
+                     465     
+                     466     
+                     467     
+                     468     
+                     469     ;¶àÎ»Ê³·¨³ÌÐò   £¨¼ì²éÍ¨¹£©
+                     470     ;ÊäÈë: R0-³Ê¸ß×Ö½ÚµØÖ·
+                     471     ;      R1-³ÊµÍ×Ö½ÚµØÖ·
+                     472     ;      R6-³Ê×Ö½ÚÊ
+                     473     ;      R7-×Ü×Ö½ÚÊ
+                     474     ;½á¹û: ÉÌÔÚ±»³ÊµÄÎ»ÖÃ£¬ÓàÊÔÚ
+                     475     
+                     476     ;À£º¼ÆËã0x12345678/0x4321 = 456C
+                     477     ; mov Buffer+0,#0x43
+                     478     ; mov Buffer+1,#0x21
+                     479     ; mov Buffer+2,#0
+                     480     ; mov Buffer+3,#0
+                     481     ; mov Buffer+4,#0x12
+                     482     ; mov Buffer+5,#0x34
+                     483     ; mov Buffer+6,#0x56
+                     484     ; mov Buffer+7,#0x78
+                     485     ; mov r0,#Buffer+1
+                     486     ; mov r1,#Buffer+2
+                     487     ; mov r6,#2                     ;³ÊÎ»Ê
+                     488     ; mov r7,#6                     ;±»³ÊÎ»Ê¼ÓÉÏ³ÊÎ»Ê
+                     489     ; lcall DivBytes
+                     490     ; ½á¹ûÔÚBuffer+4¿ªÊ¼µÄµØ·½£¬¸ßÎ»ÔÚÇ°
+                     491     
+                     492     
+0294                 493     DivBytes:
+0294 C005            494                     PUSH            5
+0296 EF              495                     MOV             A,R7
+0297 C3              496                     CLR             C
+0298 9E              497                     SUBB            A,R6
+0299 75F008          498                     MOV             B,#8
+029C A4              499                     MUL             AB
+029D FD              500                     MOV             R5,A
+029E                 501     DB1:
+029E C007            502                     PUSH            7
+02A0 C001            503                     PUSH            1
+02A2 EF              504                     MOV             A,R7
+02A3 29              505                     ADD             A,R1
+02A4 14              506                     DEC             A
+02A5 F9              507                     MOV             R1,A
+02A6 120327          508                     LCALL           ShiftL
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE     9
+
+02A9 D001            509                     POP             1
+                     510     
+02AB D007            511                     POP             7
+02AD 4018            512                     JC              DB21
+                     513     
+02AF C006            514                     PUSH            6
+02B1 C001            515                     PUSH            1
+02B3 C000            516                     PUSH            0
+02B5 E9              517                     MOV             A,R1
+02B6 2E              518                     ADD             A,R6
+02B7 F9              519                     MOV             R1,A
+02B8 19              520                     DEC             R1
+02B9                 521     DB2:
+02B9 E7              522                     MOV             A,@R1
+02BA 96              523                     SUBB            A,@R0
+02BB 19              524                     DEC             R1
+02BC 18              525                     DEC             R0
+02BD DEFA            526                     DJNZ            R6,DB2
+02BF D000            527                     POP             0
+02C1 D001            528                     POP             1
+02C3 D006            529                     POP             6
+02C5 401C            530                     JC              DB4
+02C7                 531     DB21:
+02C7 C006            532                     PUSH            6
+02C9 C001            533                     PUSH            1
+02CB C000            534                     PUSH            0
+02CD E9              535                     MOV             A,R1
+02CE 2E              536                     ADD             A,R6
+02CF F9              537                     MOV             R1,A
+02D0 19              538                     DEC             R1
+02D1 C3              539                     CLR             C
+02D2                 540     DB3:
+02D2 E7              541                     MOV             A,@R1
+02D3 96              542                     SUBB            A,@R0
+02D4 F7              543                     MOV             @R1,A
+02D5 19              544                     DEC             R1
+02D6 18              545                     DEC             R0
+02D7 DEF9            546                     DJNZ            R6,DB3
+02D9 EF              547                     MOV             A,R7
+02DA 29              548                     ADD             A,R1
+02DB F9              549                     MOV             R1,A
+02DC 07              550                     INC             @R1
+02DD D000            551                     POP             0
+02DF D001            552                     POP             1
+02E1 D006            553                     POP             6
+02E3                 554     DB4:
+02E3 DDB9            555                     DJNZ            R5,DB1
+                     556     
+                     557                     ; 4 out 5 in
+02E5 E7              558                     MOV             A,@R1
+02E6 20E72B          559                     JB              ACC.7,DB5
+                     560     
+                     561                     ; remainder * 2
+02E9 C007            562                     PUSH            7
+02EB C001            563                     PUSH            1
+02ED EE              564                     MOV             A,R6
+02EE 29              565                     ADD             A,R1
+02EF 14              566                     DEC             A
+02F0 F9              567                     MOV             R1,A
+02F1 850607          568                     MOV             7,6
+02F4 120327          569                     LCALL           ShiftL
+02F7 D001            570                     POP             1
+                     571     
+02F9 D007            572                     POP             7
+02FB C3              573                     CLR             C
+02FC C006            574                     PUSH            6
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE    10
+
+02FE C001            575                     PUSH            1
+0300 C000            576                     PUSH            0
+0302 E9              577                     MOV             A,R1
+0303 2E              578                     ADD             A,R6
+0304 F9              579                     MOV             R1,A
+0305 19              580                     DEC             R1
+                     581                     ; divisor - remainder*2
+0306                 582     DB7:
+0306 E7              583                     MOV             A,@R1
+0307 96              584                     SUBB            A,@R0
+0308 19              585                     DEC             R1
+0309 18              586                     DEC             R0
+030A DEFA            587                     DJNZ            R6,DB7
+030C D000            588                     POP             0
+030E D001            589                     POP             1
+0310 D006            590                     POP             6
+0312 4010            591                     JC              DB6
+0314                 592     DB5:
+0314 E9              593                     MOV             A,R1
+0315 2F              594                     ADD             A,R7
+0316 F9              595                     MOV             R1,A
+0317 19              596                     DEC             R1
+0318 EF              597                     MOV             A,R7
+0319 C3              598                     CLR             C
+031A 9E              599                     SUBB            A,R6
+031B FF              600                     MOV             R7,A
+031C D3              601                     SETB            C
+031D                 602     DB8:
+031D E7              603                     MOV             A,@R1
+031E 3400            604                     ADDC            A,#0
+0320 F7              605                     MOV             @R1,A
+0321 19              606                     DEC             R1
+0322 DFF9            607                     DJNZ            R7,DB8
+0324                 608     DB6:
+0324 D005            609                     POP             5
+0326 22              610                     RET
+0327                 611     ShiftL:
+0327 C3              612                     CLR             C
+0328                 613     ShL1:
+0328 E7              614                     MOV             A,@R1
+0329 33              615                     RLC             A
+032A F7              616                     MOV             @R1,A
+032B 19              617                     DEC             R1
+032C DFFA            618                     DJNZ            R7,ShL1
+032E 22              619                     RET
+                     620     
+                     621     
+                     622     ;¶àÎ»Ê³·¨³ÌÐò£¨¼ì²éÍ¨¹£©
+                     623     
+                     624     
+                     625     ; °ÑË«×Ö½ÚµÄÊ®Áù½øÖÆÊ×ª»»ÎªBCDÂë £¨¼ì²éÍ¨¹£©
+                     626     ; ÊäÈë:  R0 - Ê®Áù½øÖÆÊµÄ¸ß×Ö½ÚµØÖ·
+                     627     ;        R1 - ×ª»»ºóBCDÂëµÄ¸ßÎ»µØÖ·
+032F                 628     BinDec:
+032F E4              629                     CLR             A
+0330 F7              630             MOV             @R1,A
+0331 09              631                     INC             R1
+0332 F7              632                     MOV             @R1,A
+0333 09              633                     INC             R1
+0334 F7              634                     MOV             @R1,A
+0335 C007            635                     PUSH            7
+0337 7F10            636                     MOV             R7,#16
+0339                 637     BD1:
+0339 C3              638                     CLR             C
+033A 08              639                     INC             R0
+033B E6              640                     MOV             A,@R0
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE    11
+
+033C 33              641                     RLC             A
+033D F6              642                     MOV             @R0,A
+033E 18              643                     DEC             R0
+033F E6              644                     MOV             A,@R0
+0340 33              645                     RLC             A
+0341 F6              646                     MOV             @R0,A
+                     647     
+0342 C001            648                     PUSH            1
+0344 E7              649                     MOV             A,@R1
+0345 37              650                     ADDC            A,@R1
+0346 D4              651                     DA              A
+0347 F7              652                     MOV             @R1,A
+0348 19              653                     DEC             R1
+0349 E7              654                     MOV             A,@R1
+034A 37              655                     ADDC            A,@R1
+034B D4              656                     DA              A
+034C F7              657                     MOV             @R1,A
+034D 19              658                     DEC             R1
+034E E7              659                     MOV             A,@R1
+034F 37              660                     ADDC            A,@R1
+0350 D4              661                     DA              A
+0351 F7              662                     MOV             @R1,A
+0352 D001            663                     POP             1
+                     664     
+0354 DFE3            665                     DJNZ            R7,BD1
+0356 D007            666                     POP             7
+                     667     
+0358 22              668                     RET
+                     669     ; °ÑË«×Ö½ÚµÄÊ®Áù½øÖÆÊ×ª»»ÎªBCDÂë         £¨¼ì²éÍ¨¹£©
+                     670     
+                     671     
+                     672                     END
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE    12
 
 SYMBOL TABLE LISTING
 ------ ----- -------
@@ -267,33 +719,76 @@ SYMBOL TABLE LISTING
 
 N A M E             T Y P E  V A L U E   ATTRIBUTES
 
+ACC. . . . . . . .  D ADDR   00E0H   A   
 B. . . . . . . . .  D ADDR   00F0H   A   
-BD1. . . . . . . .  C ADDR   0122H   A   
-BINDEC . . . . . .  C ADDR   0118H   A   
-CC1. . . . . . . .  C ADDR   0056H   A   
-CCOUNT . . . . . .  N NUMB   0040H   A   
-CDISPLAYBIT. . . .  N NUMB   003CH   A   
-CDISPLAYBUFFER . .  N NUMB   0030H   A   
-COUNT. . . . . . .  C ADDR   004EH   A   
-DISPLAY. . . . . .  C ADDR   014CH   A   
-DISPTABLE. . . . .  C ADDR   0142H   A   
-DISTANCE . . . . .  C ADDR   0057H   A   
-DISTANCETODISPLAY.  C ADDR   00A0H   A   
+BD1. . . . . . . .  C ADDR   0339H   A   
+BINDEC . . . . . .  C ADDR   032FH   A   
+BUFFER . . . . . .  N NUMB   0040H   A   
+CAL. . . . . . . .  C ADDR   0217H   A   
+CALCULATEDISTANCE.  C ADDR   00FDH   A   
+CALPRICE . . . . .  C ADDR   0173H   A   
+CDISPBUFFER. . . .  N NUMB   0010H   A   
+CDISPLAYBIT. . . .  N NUMB   001CH   A   
+CONEMSECOND. . . .  N NUMB   001EH   A   
+CONESECOND . . . .  N NUMB   001DH   A   
+DB1. . . . . . . .  C ADDR   029EH   A   
+DB2. . . . . . . .  C ADDR   02B9H   A   
+DB21 . . . . . . .  C ADDR   02C7H   A   
+DB3. . . . . . . .  C ADDR   02D2H   A   
+DB4. . . . . . . .  C ADDR   02E3H   A   
+DB5. . . . . . . .  C ADDR   0314H   A   
+DB6. . . . . . . .  C ADDR   0324H   A   
+DB7. . . . . . . .  C ADDR   0306H   A   
+DB8. . . . . . . .  C ADDR   031DH   A   
+DECREASEONE. . . .  C ADDR   0215H   A   
+DISPLAY. . . . . .  C ADDR   00D1H   A   
+DISPLAYSPEED . . .  C ADDR   0279H   A   
+DISPTABLE. . . . .  C ADDR   00C7H   A   
+DIVBYTES . . . . .  C ADDR   0294H   A   
 EA . . . . . . . .  B ADDR   00A8H.7 A   
-EN . . . . . . . .  C ADDR   0166H   A   
+ENDCAL . . . . . .  C ADDR   016CH   A   
+ENDCALCULATE . . .  C ADDR   020DH   A   
+ENDDISP. . . . . .  C ADDR   00FCH   A   
+ENDTIMERINTO . . .  C ADDR   00C6H   A   
+ET0. . . . . . . .  B ADDR   00A8H.1 A   
 EX0. . . . . . . .  B ADDR   00A8H.0 A   
-FEE. . . . . . . .  C ADDR   006CH   A   
-FEETODISPLAY . . .  C ADDR   00C8H   A   
-INT0PROC . . . . .  C ADDR   0047H   A   
+H2B3LOOP . . . . .  C ADDR   024CH   A   
+HEX2BCD3BYTE . . .  C ADDR   0248H   A   
+INITIALIZATION . .  C ADDR   0030H   A   
+INTONESECOND . . .  N NUMB   001FH   A   
+INTRO. . . . . . .  C ADDR   008BH   A   
 IT0. . . . . . . .  B ADDR   0088H.0 A   
-M1 . . . . . . . .  C ADDR   002BH   A   
-M2 . . . . . . . .  C ADDR   004DH   A   
-MAIN . . . . . . .  C ADDR   0006H   A   
+KILOMETER. . . . .  N NUMB   0023H   A   
+KILOMETERBCD . . .  N NUMB   0028H   A   
+LOOP1. . . . . . .  C ADDR   0188H   A   
+LOOP2. . . . . . .  C ADDR   01B3H   A   
+LOOP3. . . . . . .  C ADDR   01CFH   A   
+MAINLOOP . . . . .  C ADDR   007CH   A   
+MYCALSPEED . . . .  C ADDR   020EH   A   
+NEXT1. . . . . . .  C ADDR   00E8H   A   
+NEXT2. . . . . . .  C ADDR   00EDH   A   
+NEXT3. . . . . . .  C ADDR   00F2H   A   
+NEXTCONDITION. . .  C ADDR   016EH   A   
 P1 . . . . . . . .  D ADDR   0090H   A   
 P2 . . . . . . . .  D ADDR   00A0H   A   
 P3 . . . . . . . .  D ADDR   00B0H   A   
-SPEED. . . . . . .  C ADDR   008DH   A   
-SPEEDTODISPLAY . .  C ADDR   00F0H   A   
+PRICEBUFFER1 . . .  N NUMB   0050H   A   
+PRICEBUFFER2 . . .  N NUMB   0055H   A   
+PSW. . . . . . . .  D ADDR   00D0H   A   
+SHIFTL . . . . . .  C ADDR   0327H   A   
+SHL1 . . . . . . .  C ADDR   0328H   A   
+SP . . . . . . . .  D ADDR   0081H   A   
+SPEED. . . . . . .  N NUMB   0032H   A   
+A51 MACRO ASSEMBLER  TAXI                                                                 06/22/2017 16:07:34 PAGE    13
+
+SPEEDBCD . . . . .  N NUMB   0036H   A   
+STOP . . . . . . .  C ADDR   0085H   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TIMERINTO. . . . .  C ADDR   00A3H   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TOTALINTO. . . . .  N NUMB   0020H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
 
 
 REGISTER BANK(S) USED: 0 
